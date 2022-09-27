@@ -1,8 +1,8 @@
 /*
 ============================================================================
 Filename    : pi.c
-Author      : Your names goes here
-SCIPER		: Your SCIPER numbers
+Author      : Ugo Balducci & Ahmed Elalamy
+SCIPER		: 325035 & 324610
 ============================================================================
 */
 
@@ -38,6 +38,19 @@ double calculate_pi (int num_threads, int samples) {
     double pi;
 
     /* Your code goes here */
-
+    omp_set_num_threads(num_threads);
+    int in_circle = 0;
+    rand_gen rdm = init_rand();
+#pragma omp parallel for
+    for(int i = 0; i < samples; i++){
+        double x = next_rand(rdm);
+        double y = next_rand(rdm);
+        if ((x*x) + (y*y) <= 1) {
+#pragma omp atomic
+            in_circle += 1;
+        }
+    }
+#pragma omp barrier
+    pi = ((double) in_circle / (double) samples) * 4;
     return pi;
 }
