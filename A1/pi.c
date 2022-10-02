@@ -8,6 +8,7 @@ SCIPER		: 325035 & 324610
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "utility.h"
 
 double calculate_pi (int num_threads, int samples);
@@ -40,17 +41,18 @@ double calculate_pi (int num_threads, int samples) {
     /* Your code goes here */
     omp_set_num_threads(num_threads);
     int in_circle = 0;
-    rand_gen rdm = init_rand();
-#pragma omp parallel for
-    for(int i = 0; i < samples; i++){
+    #pragma omp parallel reduction(+:in_circle)
+    {
+        rand_gen rdm = init_rand();
+    for (size_t i = 0; i < samples / num_threads; i++) {
         double x = next_rand(rdm);
         double y = next_rand(rdm);
-        if ((x*x) + (y*y) <= 1) {
-#pragma omp atomic
+        if ((x * x) + (y * y) <= 1) {
             in_circle += 1;
         }
     }
-#pragma omp barrier
-    pi = ((double) in_circle / (double) samples) * 4;
+    }
+    pi = 4.0 * in_circle / samples;
     return pi;
+
 }
