@@ -43,6 +43,17 @@ double integrate (int num_threads, int samples, int a, int b, double (*f)(double
     double integral;
 
     /* Your code goes here */
+    omp_set_num_threads(num_threads);
+    double areas = 0;
 
+#pragma omp parallel reduction(+:areas)
+    {
+    rand_gen rdm = init_rand();
+    for (size_t i = 0; i < samples / num_threads; ++i) {
+        double x = next_rand(rdm) * (b - a) + a;
+        areas += f(x) * (b - a);
+    }
+}
+    integral = areas / samples;
     return integral;
 }
