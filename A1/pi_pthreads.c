@@ -1,8 +1,8 @@
 /*
 ============================================================================
 Filename    : pi.c
-Author      : Your names goes here
-SCIPER		: Your SCIPER numbers
+Author      : Ugo Balducci
+SCIPER		: 325035
 ============================================================================
 */
 
