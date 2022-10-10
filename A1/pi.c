@@ -1,10 +1,11 @@
 /*
 ============================================================================
 Filename    : pi.c
-Author      : Ugo Balducci & Ahmed Elalamy
+Author      : Balducci Ugo & Elalamy Ahmed
 SCIPER		: 325035 & 324610
 ============================================================================
 */
+
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -38,26 +39,20 @@ int main (int argc, const char *argv[]) {
 double calculate_pi (int num_threads, int samples) {
     double pi;
 
+    /* Your code goes here */
     omp_set_num_threads(num_threads);
     int in_circle = 0;
-    rand_gen rdm = init_rand();
-
-#pragma omp parallel for
-
-    for (size_t i = 0; i < samples; i++) {
-        double x = next_rand(rdm);
-        double y = next_rand(rdm);
-        if ((x*x) + (y*y) <= 1){
-
-#pragma omp atomic
-
-            in_circle += 1;
+    #pragma omp parallel reduction(+:in_circle)
+    {
+        rand_gen rdm = init_rand();
+        for (size_t i = 0; i < samples / num_threads; i++) {
+            double x = next_rand(rdm);
+            double y = next_rand(rdm);
+            if ((x * x) + (y * y) <= 1) {
+                in_circle += 1;
+            }
         }
     }
-
-    free_rand(rdm);
-
     pi = 4.0 * in_circle / samples;
     return pi;
-
 }
