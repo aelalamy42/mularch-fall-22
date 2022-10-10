@@ -1,8 +1,8 @@
 /*
 ============================================================================
 Filename    : integral.c
-Author      : Your names goes here
-SCIPER		: Your SCIPER numbers
+Author      : Balducci Ugo & Elalamy Ahmed
+SCIPER		: 325035 & 324610
 ============================================================================
 */
 
