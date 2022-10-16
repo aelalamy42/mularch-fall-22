@@ -1,0 +1,19 @@
+STARTING AT Sun Oct 9 16:57:30 CEST 2022
+
+With 5000000 samples.
+
+- Using 1 threads: pi = 3.14213216 computed in 0.5754s.
+- Using 2 threads: pi = 3.14187192 computed in 0.2901s.
+- Using 4 threads: pi = 3.14175088 computed in 0.1524s.
+- Using 8 threads: pi = 3.14146072 computed in 0.07822s.
+- Using 16 threads: pi = 3.14137912 computed in 0.04119s.
+- Using 32 threads: pi = 3.141548 computed in 0.02364s.
+- Using 64 threads: pi = 3.14153936 computed in 0.04267s.
+- Using 1 threads: pi = 3.14213216 computed in 0.5774s.
+- Using 2 threads: pi = 3.14187192 computed in 0.2929s.
+- Using 4 threads: pi = 3.14175088 computed in 0.1541s.
+- Using 8 threads: pi = 3.14146072 computed in 0.07946s.
+- Using 16 threads: pi = 3.14137912 computed in 0.04269s.
+- Using 32 threads: pi = 3.141548 computed in 0.02498s.
+- Using 64 threads: pi = 3.14153936 computed in 0.02507s
+FINISHED at Sun Oct 9 16:58:20 CEST 2022
