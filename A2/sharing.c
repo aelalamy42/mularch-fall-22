@@ -1,8 +1,8 @@
 /*
 ============================================================================
-Filename    : pi.c
-Author      : Your names goes here
-SCIPER		: Your SCIPER numbers
+Filename    : sharing.c
+Author      : Ugo Balducci
+SCIPER		: 325035
 ============================================================================
 */
 
@@ -33,11 +33,32 @@ int main (int argc, const char *argv[]) {
 
 int perform_buckets_computation(int num_threads, int num_samples, int num_buckets) {
     volatile int *histogram = (int*) calloc(num_buckets, sizeof(int));
-    rand_gen generator = init_rand();
-    for(int i = 0; i < num_samples; i++){
-        int val = next_rand(generator) * num_buckets;
-        histogram[val]++;
+    int** tmp_hist = calloc(num_threads, sizeof(histogram));
+
+    omp_set_num_threads(num_threads);
+
+    #pragma omp parallel private(num_samples, num_buckets) shared(tmp_hist)
+    {
+        int tid = omp_get_thread_num();
+        rand_gen generator = init_rand();
+        tmp_hist[tid] = (int*)calloc(num_buckets, sizeof(int));
+
+        #pragma omp for nowait
+        for(int i = 0; i < num_samples; i++){
+            int val = next_rand(generator) * num_buckets;
+            tmp_hist[tid][val]++;
+        }
+
+        free_rand(generator);
     }
-    free_rand(generator);
+
+    #pragma omp parallel shared (tmp_hist, histogram) private(num_buckets)
+    for(int i = 0; i < num_buckets; i++) {
+        int tid;
+        for (tid = 0; tid < omp_get_num_threads(); tid++) {
+            histogram[i] += tmp_hist[tid][i];
+        }
+    }
+
     return 0;
 }

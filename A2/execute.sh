@@ -10,6 +10,6 @@ echo STARTING AT `date`
 
 ./sharing 1 100000000 32
 
-./assignment2 1 10000 100 output.csv
+# ./heatmap 1 10000 100 output.csv
 
 echo FINISHED at `date`

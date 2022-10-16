@@ -12,3 +12,6 @@ sharing: sharing.c utility.h
 
 clean:
 	rm -f heatmap sharing
+
+test:
+	sudo bash ./execute.sh
