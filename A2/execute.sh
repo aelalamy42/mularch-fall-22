@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --chdir /scratch/<username>
+#SBATCH --chdir /scratch/balducci/A2
 #SBATCH --nodes 1
 #SBATCH --ntasks 1
 #SBATCH --cpus-per-task 16
@@ -8,7 +8,10 @@
 
 echo STARTING AT `date`
 
-./sharing 1 100000000 32
+./sharing 1 200000000 32
+./sharing 2 200000000 32
+./sharing 4 200000000 32
+./sharing 8 200000000 32
 
 # ./heatmap 1 10000 100 output.csv
 
