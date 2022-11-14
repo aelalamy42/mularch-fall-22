@@ -1,0 +1,197 @@
+	.file	"order.c"
+	.text
+	.comm	X,4,4
+	.comm	Y,4,4
+	.comm	r1,4,4
+	.comm	r2,4,4
+	.comm	t1block,1,1
+	.comm	t2block,1,1
+	.comm	t1fin,1,1
+	.comm	t2fin,1,1
+	.globl	thread1Func
+	.type	thread1Func, @function
+thread1Func:
+.LFB6:
+	.cfi_startproc
+	pushq	%rbp
+	.cfi_def_cfa_offset 16
+	.cfi_offset 6, -16
+	movq	%rsp, %rbp
+	.cfi_def_cfa_register 6
+	movq	%rdi, -8(%rbp)
+.L3:
+	nop
+.L2:
+	movzbl	t1block(%rip), %eax
+	testb	%al, %al
+	jne	.L2
+	movb	$1, t1block(%rip)
+	movl	$1, X(%rip)
+	movl	Y(%rip), %eax
+	movl	%eax, r1(%rip)
+	movb	$1, t1fin(%rip)
+	jmp	.L3
+	.cfi_endproc
+.LFE6:
+	.size	thread1Func, .-thread1Func
+	.globl	thread2Func
+	.type	thread2Func, @function
+thread2Func:
+.LFB7:
+	.cfi_startproc
+	pushq	%rbp
+	.cfi_def_cfa_offset 16
+	.cfi_offset 6, -16
+	movq	%rsp, %rbp
+	.cfi_def_cfa_register 6
+	movq	%rdi, -8(%rbp)
+.L6:
+	nop
+.L5:
+	movzbl	t2block(%rip), %eax
+	testb	%al, %al
+	jne	.L5
+	movb	$1, t2block(%rip)
+	movl	$1, Y(%rip)
+	movl	X(%rip), %eax
+	movl	%eax, r2(%rip)
+	movb	$1, t2fin(%rip)
+	jmp	.L6
+	.cfi_endproc
+.LFE7:
+	.size	thread2Func, .-thread2Func
+	.section	.rodata
+	.align 8
+.LC0:
+	.string	"Failed to set main thread affinity"
+	.align 8
+.LC1:
+	.string	"%d memory re-orderings detected in %d iterations - %d percent\n"
+	.text
+	.globl	main
+	.type	main, @function
+main:
+.LFB8:
+	.cfi_startproc
+	pushq	%rbp
+	.cfi_def_cfa_offset 16
+	.cfi_offset 6, -16
+	movq	%rsp, %rbp
+	.cfi_def_cfa_register 6
+	subq	$176, %rsp
+	movl	$1, %eax
+	movb	%al, t2block(%rip)
+	movb	%al, t1block(%rip)
+	movl	$0, %eax
+	movb	%al, t2fin(%rip)
+	movb	%al, t1fin(%rip)
+	call	pthread_self
+	movq	%rax, -16(%rbp)
+	leaq	-40(%rbp), %rax
+	movl	$0, %ecx
+	movl	$thread1Func, %edx
+	movl	$0, %esi
+	movq	%rax, %rdi
+	call	pthread_create
+	leaq	-48(%rbp), %rax
+	movl	$0, %ecx
+	movl	$thread2Func, %edx
+	movl	$0, %esi
+	movq	%rax, %rdi
+	call	pthread_create
+	leaq	-176(%rbp), %rax
+	movq	%rax, %rsi
+	movl	$0, %eax
+	movl	$16, %edx
+	movq	%rsi, %rdi
+	movq	%rdx, %rcx
+	rep stosq
+	movq	$0, -24(%rbp)
+	cmpq	$1023, -24(%rbp)
+	ja	.L9
+	movq	-24(%rbp), %rax
+	shrq	$6, %rax
+	leaq	0(,%rax,8), %rdx
+	leaq	-176(%rbp), %rcx
+	addq	%rcx, %rdx
+	movq	(%rdx), %rdx
+	movq	-24(%rbp), %rcx
+	andl	$63, %ecx
+	movl	$1, %esi
+	salq	%cl, %rsi
+	movq	%rsi, %rcx
+	leaq	0(,%rax,8), %rsi
+	leaq	-176(%rbp), %rax
+	addq	%rsi, %rax
+	orq	%rcx, %rdx
+	movq	%rdx, (%rax)
+.L9:
+	leaq	-176(%rbp), %rdx
+	movq	-16(%rbp), %rax
+	movl	$128, %esi
+	movq	%rax, %rdi
+	call	pthread_setaffinity_np
+	movl	%eax, -28(%rbp)
+	cmpl	$0, -28(%rbp)
+	je	.L10
+	movl	$.LC0, %edi
+	call	puts
+	movl	$0, %eax
+	jmp	.L16
+.L10:
+	movl	$0, -4(%rbp)
+	movl	$1, -8(%rbp)
+	movl	$1, -8(%rbp)
+	jmp	.L12
+.L15:
+	movl	$0, X(%rip)
+	movl	$0, Y(%rip)
+	movl	$0, %eax
+	movb	%al, t2fin(%rip)
+	movb	%al, t1fin(%rip)
+	movl	$0, %eax
+	movb	%al, t2block(%rip)
+	movb	%al, t1block(%rip)
+	nop
+.L13:
+	movzbl	t1fin(%rip), %eax
+	xorl	$1, %eax
+	testb	%al, %al
+	jne	.L13
+	movzbl	t2fin(%rip), %eax
+	xorl	$1, %eax
+	testb	%al, %al
+	jne	.L13
+	movl	r1(%rip), %eax
+	testl	%eax, %eax
+	jne	.L14
+	movl	r2(%rip), %eax
+	testl	%eax, %eax
+	jne	.L14
+	addl	$1, -4(%rbp)
+.L14:
+	addl	$1, -8(%rbp)
+.L12:
+	cmpl	$999999, -8(%rbp)
+	jle	.L15
+	movl	-4(%rbp), %eax
+	imull	$100, %eax, %eax
+	cltd
+	idivl	-8(%rbp)
+	movl	%eax, %ecx
+	movl	-8(%rbp), %edx
+	movl	-4(%rbp), %eax
+	movl	%eax, %esi
+	movl	$.LC1, %edi
+	movl	$0, %eax
+	call	printf
+	movl	$0, %eax
+.L16:
+	leave
+	.cfi_def_cfa 7, 8
+	ret
+	.cfi_endproc
+.LFE8:
+	.size	main, .-main
+	.ident	"GCC: (GNU) 8.5.0 20210514 (Red Hat 8.5.0-4)"
+	.section	.note.GNU-stack,"",@progbits
