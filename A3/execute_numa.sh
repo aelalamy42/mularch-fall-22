@@ -8,9 +8,12 @@
 
 echo STARTING AT `date`
 
-numactl --physcpubind=+0-13 ./numa
-numactl --physcpubind=+14-27 ./numa
-numactl --physcpubind=+7-20 ./numa
+echo --  LOCAL MODE --
+numactl --localalloc ./numa
+echo --  REMOTE MODE --
+numactl --membind=0 --cpunodebind=1 ./numa
+echo --  INTERLEAVE MODE --
+numactl --interleave=all ./numa
 
 
 echo FINISHED at `date`

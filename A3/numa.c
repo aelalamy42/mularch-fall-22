@@ -10,15 +10,16 @@ volatile uint8_t *arr;
 
 inline uint64_t next_addr(uint64_t i){
     // Change this part
-    return 1;
+    return (uint64_t) arr[i];
 }
 
 inline void init_array(rand_gen gen){
     // Change this part
     for(uint64_t i=0; i<SIZE; i++){
-        arr[i] = 1;
+        arr[i] = (uint8_t) (next_rand(gen)*63 + 1 + 128);
     }
 }
+
 
 int main(){
     uint64_t i, counter;
