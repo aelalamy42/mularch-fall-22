@@ -2,7 +2,7 @@
 #SBATCH --chdir /home/aelalamy/A3
 #SBATCH --nodes 1
 #SBATCH --ntasks 1
-#SBATCH --cpus-per-task 28
+#SBATCH --cpus-per-task 36
 #SBATCH --mem 10G
 
 
