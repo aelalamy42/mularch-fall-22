@@ -1,8 +1,8 @@
 /*
 ============================================================================
 Filename    : algorithm.c
-Author      : Your name goes here
-SCIPER      : Your SCIPER number
+Author      : Elalamy Balducci
+SCIPER      : ______ - 325035
 ============================================================================
 */
 
@@ -60,9 +60,17 @@ void GPU_array_process(double *input, double *output, int length, int iterations
     cudaEventCreate(&comp_end);
 
     /* Preprocessing goes here */
+    //Alloc Space in GPU
+    int size = length * length;
+    double* d_input;
+    CUDA_HANDLE_ERROR( cudaMalloc(&d_input, size) );
+    double* d_output;
+    cudaMalloc(&d_output, size);
 
     cudaEventRecord(cpy_H2D_start);
     /* Copying array from host to device goes here */
+    //Copy the array to the GPU
+    cudaMemcpy(d_input, input, size, cudaMemcpyHostToDevice);
     cudaEventRecord(cpy_H2D_end);
     cudaEventSynchronize(cpy_H2D_end);
 
@@ -74,10 +82,14 @@ void GPU_array_process(double *input, double *output, int length, int iterations
 
     cudaEventRecord(cpy_D2H_start);
     /* Copying array from device to host goes here */
+    //Copy result array in CPU
+    cudaMemcpy(output, d_output, size, cudaMemcpyHostToDevice);
     cudaEventRecord(cpy_D2H_end);
     cudaEventSynchronize(cpy_D2H_end);
 
     /* Postprocessing goes here */
+    cudaFree(d_input);
+    cudaFree(d_output);
 
     float time;
     cudaEventElapsedTime(&time, cpy_H2D_start, cpy_H2D_end);
