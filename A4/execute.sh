@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --chdir /home/<username>
+#SBATCH --chdir /home/aelalamy/mularch-fall-22/A4
 #SBATCH --partition=gpu
 #SBATCH --qos=gpu_free
 #SBATCH --gres=gpu:1
