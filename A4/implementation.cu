@@ -48,11 +48,11 @@ void array_process(double *input, double *output, int length, int iterations)
 
 __global__
 void single_iteration(double* input, double* output, int length){
-    for(int i=1; i<length-1; i++)
-    {
-        for(int j=1; j<length-1; j++)
-        {
-            output[(i)*(length)+(j)] = (input[(i-1)*(length)+(j-1)] +
+    int j = blockIdx.x * blockDim.x + threadIdx.x + 1;
+    int i = blockIdx.y * blockDim.y + threadIdx.y + 1;
+    // Offset of one not to touch the border of the matrix
+    // As we only have length - 2 threads in each dimension, the max is by definition length - 1
+    output[(i)*(length)+(j)] = (input[(i-1)*(length)+(j-1)] +
                                         input[(i-1)*(length)+(j)]   +
                                         input[(i-1)*(length)+(j+1)] +
                                         input[(i)*(length)+(j-1)]   +
@@ -61,15 +61,15 @@ void single_iteration(double* input, double* output, int length){
                                         input[(i+1)*(length)+(j-1)] +
                                         input[(i+1)*(length)+(j)]   +
                                         input[(i+1)*(length)+(j+1)] ) / 9;
-
-        }
-    }
-    output[(length/2-1)*length+(length/2-1)] = 1000;
-    output[(length/2)*length+(length/2-1)]   = 1000;
-    output[(length/2-1)*length+(length/2)]   = 1000;
-    output[(length/2)*length+(length/2)]     = 1000;
 }
 
+__global__
+void init_center(double* input, int length){
+    input[(length/2-1)*length+(length/2-1)] = 1000;
+    input[(length/2)*length+(length/2-1)]   = 1000;
+    input[(length/2-1)*length+(length/2)]   = 1000;
+    input[(length/2)*length+(length/2)]     = 1000;
+}
 // GPU Optimized function
 void GPU_array_process(double *input, double *output, int length, int iterations)
 {
@@ -107,7 +107,8 @@ void GPU_array_process(double *input, double *output, int length, int iterations
     cudaDeviceSynchronize();
     for(int n=0; n<(int) iterations; n++)
     {
-        single_iteration<<<1,1>>>(d_input, d_output, length);
+        single_iteration<<<nbBlocks,threadsPerBlock>>>(d_input, d_output, length);
+        init_center<<<1,1>>>(d_output, length);
         cudaDeviceSynchronize();
         temp = d_input;
         d_input = d_output;
@@ -119,7 +120,7 @@ void GPU_array_process(double *input, double *output, int length, int iterations
     cudaEventRecord(cpy_D2H_start);
     /* Copying array from device to host goes here */
     //Copy result array in CPU
-    cudaMemcpy(output, d_input, size, cudaMemcpyDeviceToHost);
+    cudaMemcpy(output, d_input, size, cudaMemcpyDeviceToHost); // The result is stored at the end of each iteration in the input array
     cudaEventRecord(cpy_D2H_end);
     cudaEventSynchronize(cpy_D2H_end);
 
